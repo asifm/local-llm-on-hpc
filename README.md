@@ -71,6 +71,10 @@ You can run this command to confirm Ollama is running: `curl http://127.0.0.1:11
 
 3. To start a chat session, run: `apptainer exec --nv  $OLLAMA_IMAGE ollama run $OLLAMA_MODEL`
 
+The model to use is declared via the environment variable `$OLLAMA_MODEL`, which can be set by editing the relevant line in `ollama_setup.sh` before sourcing it. Or you can choose a new model when running Ollama commands. Ollama will automatically pull a model if needed. 
+
+For example, to run the above command with a different model: `apptainer exec --nv  $OLLAMA_IMAGE ollama run gemma3:4b`
+
 ## Batch Job Using Slurm
 
 1. Run: `sbatch sample_slurm_job.sh`
