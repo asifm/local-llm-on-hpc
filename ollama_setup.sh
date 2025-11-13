@@ -1,42 +1,60 @@
 #!/bin/bash
 
-export OLLAMA_MODEL="gemma3:4b"
+# Edit this line to use a different model (https://ollama.com/search)
+export OLLAMA_MODEL="gemma3:270m"
+echo "Model selected: $OLLAMA_MODEL"
 
-# export OLLAMA_BASE_DIR="/project/orsDarden/ollama"
-# In case of permission issues, use
+# === Setting up paths 
+# You can change this if you want. 
 export OLLAMA_BASE_DIR="/scratch/$USER/ollama"
 
-export APPTAINER_CACHE_DIR="${OLLAMA_BASE_DIR}/apptainer_cache"    
+echo "Setting up directories in $OLLAMA_BASE_DIR"
+
 export OLLAMA_MODELS="${OLLAMA_BASE_DIR}/models"
 export LOG_DIR="${OLLAMA_BASE_DIR}/logs"
+mkdir -p "$OLLAMA_BASE_DIR" "$OLLAMA_MODELS" "$LOG_DIR"
 
-echo "Setting up Ollama directories in $OLLAMA_BASE_DIR"
+export APPTAINER_CACHEDIR="${OLLAMA_BASE_DIR}/apptainer_cache"
+export APPTAINER_TMPDIR="${OLLAMA_BASE_DIR}/tmp"
+mkdir -p "$APPTAINER_CACHEDIR" "$APPTAINER_TMPDIR"
+# ===
 
-mkdir -p "${OLLAMA_BASE_DIR}"
-mkdir -p "${APPTAINER_CACHE_DIR}"
-mkdir -p "${OLLAMA_MODELS}"
-mkdir -p "${LOG_DIR}"
-
-
-export OLLAMA_CONTAINER_VERSION="latest"
-export OLLAMA_CONTAINER="docker://ollama/ollama:${OLLAMA_CONTAINER_VERSION}"
-
-export OLLAMA_IMAGE="${OLLAMA_BASE_DIR}/ollama.sif"
-
-export OLLAMA_HOST="127.0.0.1:11434"
 
 module purge
-echo "Loading apptainer"
+echo "Loading apptainer module"
 module load apptainer
 
-echo "Pulling Ollama container to $OLLAMA_IMAGE"
-apptainer pull $OLLAMA_IMAGE $OLLAMA_CONTAINER
 
+# === Pulling Ollama image
+export OLLAMA_DOCKER_IMAGE_SRC="docker://ollama/ollama:latest"
+export OLLAMA_IMAGE="${OLLAMA_BASE_DIR}/ollama.sif"
+
+# This forces apptainer to ignore any existing docker config
+# export DOCKER_CONFIG=/nonexistent
+
+if [ ! -f "$OLLAMA_IMAGE" ]; then
+  echo "Apptainer pulling image from $OLLAMA_DOCKER_IMAGE_SRC and converting to sif: $OLLAMA_IMAGE"
+  apptainer pull "$OLLAMA_IMAGE" $OLLAMA_DOCKER_IMAGE_SRC
+else
+  echo "Apptainer image already exists: $OLLAMA_IMAGE. Skipping pull."
+fi
+# ===
+
+
+# === Starting container and running Ollama
+# TODO: test first if port in use
+export APPTAINERENV_OLLAMA_HOST="http://127.0.0.1:11435"
 LOG_FILE="$LOG_DIR/ollama_$USER_$(date -Iseconds | sed 's/:/-/g').log"
-apptainer exec --nv $OLLAMA_IMAGE ollama serve &> $LOG_FILE &
 
-echo "Launched container $OLLAMA_IMAGE"
-echo "Runing 'ollama serve' in the background."
-echo "Ollama API available on $OLLAMA_HOST/api"
+echo "Launching container from $OLLAMA_IMAGE"
+echo "Running 'ollama serve' from the container" 
+apptainer exec --nv "$OLLAMA_IMAGE" ollama serve &> "$LOG_FILE" &
+
+sleep 3 # to allow enough time for previous command to succeed before proceeding
+echo "Ollama running. REST API: $APPTAINERENV_OLLAMA_HOST/api/"
+
+echo "Pulling $OLLAMA_MODEL"
+apptainer exec --nv "$OLLAMA_IMAGE" ollama pull "$OLLAMA_MODEL" 
+
 echo "Logging output to $LOG_FILE"
-
+# ===

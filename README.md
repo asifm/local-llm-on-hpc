@@ -1,6 +1,8 @@
 #  Goal
 
-This repo provides a minimal but self-contained setup and a reproducible workflow for running a "open weight"/"local" large language model (LLM) on UVA's HPC system. You can run the scripts unmodified to see how they work. Feel free to modify them to suit your workflow.
+This repo provides a minimal but self-contained setup and a reproducible workflow for running a "open weight"/"local" large language model (LLM) on UVA's HPC system. 
+
+You can run the scripts unmodified to see how they work. Feel free to experiment and modify them to suit your workflow.
 
 The setup uses 
 
@@ -8,7 +10,7 @@ The setup uses
 - [Apptainer](https://www.rc.virginia.edu/userinfo/hpc/software/apptainer/) for container management 
 - [Slurm](https://www.rc.virginia.edu/userinfo/hpc/slurm/) for batch job management
 
-While this setup gets an LLM up and running quickly without needing low level configurations or applications, it's not optimal if you need high-volume batch processing. For such needs, check out [vllm](https://github.com/vllm-project/vllm), which requires managing your own python environment but provides superior performance.
+While this setup gets an LLM up and running quickly without requirng low level tools or configurations, it's not optimal if you need high-volume batch processing. For such needs, check out [vllm](https://github.com/vllm-project/vllm), which requires managing your own python environment but provides superior performance.
 
 
 # Requirements
@@ -17,26 +19,37 @@ You must have access to UVA's HPC system with an active allocation.
 
 Some experience with the Linux shell and familiarity with the tools mentioned above would be helpful.
 
-# Scripts
+# What the Scripts Do
 
 ## ollama_setup.sh
 
+- Chooses an Ollama model to use.
+- Configures paths to store Apptainer cache and Ollama models.
+- Pulls a container image from docker and saves it in "sif" (Apptainer's image format)
+- Starts the container
+- Runs `ollama serve` inside the container
+
+
 ## sample_slurm_job.sh
+
+- Declares, as sbatch directives, the resources needed for the job
+- Sources ollama_setup.sh, so everything in that script is run to configure, prepare and launch Ollama.
+- Starts a batch job. Usually this would be done by running a python script. In this sample script, a simple curl command is run to interact with Ollama running in the background.
 
 # Instructions
 
 - [Log into UVA HPC](https://www.rc.virginia.edu/userinfo/hpc/login/) using ssh (other methods may work but I haven't tested).
-- Once in your shell, clone this repo somewhere in the filesystem (e.g., inside `~` or `/project` or '/scratch')
+- Once in your shell, move to somewhere in the filesystem (e.g., inside `~` or `/project` or '/scratch') and clone this repo: 
 
 `git clone https://github.com/asifm/local-llm-on-hpc`
 
-- cd into the cloned directory. 
+- cd into the cloned directory to run the scripts. 
 
 From here, you can launch a chat session or start a batch job.
 
 ## Chat Session 
 
-- Run this command: `ijob -p gpu --gres=gpu:<gpu_type>:1 -A <account_name>`
+1. Run this command: `ijob -p gpu --gres=gpu:<gpu_type>:1 -A <account_name>`
 
 Replace <gpu_type> with the actual name of the GPU type you want to use. See https://www.rc.virginia.edu/userinfo/hpc/ (section titled "Hardware Configuration") for available GPUs.
 
@@ -46,7 +59,7 @@ For example: `ijob -p gpu --gres=gpu:a6000:1 -A orsdardencomputing`
 
 This will submit a request for an interactive computing node. Depending on GPU availability, getting the node may take seconds or minutes. (For details on `ijob` command, consult https://www.rc.virginia.edu/userinfo/hpc/slurm/.) 
 
-- Run this command: `source ollama_setup.sh`
+2. Run this command: `source ollama_setup.sh`
 
 Now you have Ollama running in the background through an apptainer container. You can pull new models, run a chat session, call ollama's REST API, etc. See [here](https://docs.ollama.com/cli) for the basic commands. 
 
@@ -56,10 +69,10 @@ For example: `ollama pull $OLLAMA_MODEL` becomes `apptainer exec --nv  $OLLAMA_I
 
 Important: the `--nv` option allows apptainer to connect with HPC's nvidia tools.
 
-- To start a chat session, run: `apptainer exec --nv  $OLLAMA_IMAGE ollama run $OLLAMA_MODEL`
+3. To start a chat session, run: `apptainer exec --nv  $OLLAMA_IMAGE ollama run $OLLAMA_MODEL`
 
 ## Batch Job using Slurm
 
-- Run the command: `sbatch sample_slurm_job.sh`
-- Check output in the file “slurm-<job_id>.out” (where <job_id> is the numerical ID assigned by Slurm when a job is submitted)
+1. Run the command: `sbatch sample_slurm_job.sh`
+2. Check output of the job in the file “slurm-<job_id>.out” (where <job_id> is the numerical ID assigned by Slurm when a job is submitted)
 
