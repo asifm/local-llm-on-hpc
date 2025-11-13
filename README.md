@@ -47,7 +47,7 @@ From here, you can launch a chat session or start a batch job.
 
 ## Chat Session 
 
-1. Run this command: `ijob -p gpu --gres=gpu:<gpu_type>:1 -A <account_name>`
+1. Run: `ijob -p gpu --gres=gpu:<gpu_type>:1 -A <account_name>`
 
 Replace `<gpu_type>` with the actual name of the GPU type you want to use. See https://www.rc.virginia.edu/userinfo/hpc/ (section titled "Hardware Configuration") to learn about available GPUs.
 
@@ -57,7 +57,7 @@ For example: `ijob -p gpu --gres=gpu:a6000:1 -A orsdardencomputing`
 
 This will submit a request for an interactive computing node. Depending on GPU availability, getting the node may take seconds or minutes. (For details on `ijob`, see https://www.rc.virginia.edu/userinfo/hpc/slurm/.) 
 
-2. Run this command: `source ollama_setup.sh`
+2. Run: `source ollama_setup.sh`
 
 Now you have Ollama running in the background through an apptainer container. You can pull new models, run a chat session, call ollama's REST API, etc. See [here](https://docs.ollama.com/cli) for the basic commands. 
 
@@ -67,11 +67,16 @@ For example: `ollama pull $OLLAMA_MODEL` becomes `apptainer exec --nv  $OLLAMA_I
 
 Important: the `--nv` flag enables NVIDIA GPU support inside the container by allowing it access to the host system's NVIDIA drivers and CUDA libraries.
 
+You can run this command to confirm Ollama is running: `curl http://127.0.0.1:11435/api/tags`
+
 3. To start a chat session, run: `apptainer exec --nv  $OLLAMA_IMAGE ollama run $OLLAMA_MODEL`
 
 ## Batch Job Using Slurm
 
-1. Run this command: `sbatch sample_slurm_job.sh`
-2. Check the output of the job in the file “slurm-<job_id>.out” (where <job_id> is the numerical ID assigned by Slurm when a job is submitted)
+1. Run: `sbatch sample_slurm_job.sh`
+
+Slurm will put your job request in the queue. To check status, run: `squeue -u $USER --all` 
+
+2. When the job is complete, check the output of the job in the file “slurm-<job_id>.out” (where `<job_id>` is the numerical ID assigned by Slurm when a job is submitted).
 
 To do anything useful, you'd need to write some Python code and execute that code from this job script. Ollama provides a [Python library](https://github.com/ollama/ollama-python). There's some [compatibility with the OpenAI API](https://docs.ollama.com/api/openai-compatibility).
