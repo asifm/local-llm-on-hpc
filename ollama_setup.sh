@@ -42,7 +42,6 @@ fi
 
 
 # === Starting container and running Ollama
-# TODO: test first if port in use
 export APPTAINERENV_OLLAMA_HOST="http://127.0.0.1:11435"
 LOG_FILE="$LOG_DIR/ollama_$USER_$(date -Iseconds | sed 's/:/-/g').log"
 
@@ -58,3 +57,6 @@ apptainer exec --nv "$OLLAMA_IMAGE" ollama pull "$OLLAMA_MODEL"
 
 echo "Logging output to $LOG_FILE"
 # ===
+#
+# TODO: Test first if port in use
+# TODO: Exit script when a critical command fails. Provide guidance for troubleshooting.
