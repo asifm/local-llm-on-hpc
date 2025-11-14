@@ -18,7 +18,7 @@ But it's not optimal if you need high-volume batch processing. For such needs, c
 
 You must have access to UVA's HPC system with an active allocation.
 
-You also need some experience with the Linux shell and familiarity with the tools mentioned above.
+You also need some experience with the Linux shell. Some familiarity with the tools mentioned above would help.
 
 # What the Scripts Do
 
@@ -59,7 +59,7 @@ This will submit a request for an interactive computing node. Depending on GPU a
 
 2. Run: `source ollama_setup.sh`
 
-Now you have Ollama running in the background through an apptainer container. You can pull new models, run a chat session, call ollama's REST API, etc. See [here](https://docs.ollama.com/cli) for the basic commands. 
+Now you have Ollama running in the background through an apptainer container. You can pull new models, run a chat session, call Ollama's REST API, etc. See [here](https://docs.ollama.com/cli) for the basic commands. 
 
 Since Ollama is running inside a container, you must prepend this to any Ollama command you want to run: `apptainer exec --nv  $OLLAMA_IMAGE`
 
