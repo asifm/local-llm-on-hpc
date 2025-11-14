@@ -1,6 +1,6 @@
 #  Goals
 
-This repo provides a minimal but self-contained setup and a reproducible workflow for running a "open weight"/"local" large language model (LLM) on UVA's HPC system, taking advantage of the range of GPU hardware available there.
+This repo provides a minimal but self-contained setup and a reproducible workflow for running an "open weight"/"local" large language model (LLM) on UVA's HPC system, taking advantage of the range of GPU hardware available there.
 
 You can run the scripts unmodified to see how they work. Feel free to experiment and modify them to suit your workflow. You can also use this just as a learning exercise -- to deepen your familiarity with HPC.
 
