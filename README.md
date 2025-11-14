@@ -1,24 +1,24 @@
-#  Goal
+#  Goals
 
 This repo provides a minimal but self-contained setup and a reproducible workflow for running a "open weight"/"local" large language model (LLM) on UVA's HPC system, taking advantage of the range of GPU hardware available there.
 
-You can run the scripts unmodified to see how they work. Feel free to experiment and modify them to suit your workflow.
+You can run the scripts unmodified to see how they work. Feel free to experiment and modify them to suit your workflow. You can also use this just as a learning exercise -- to deepen your familiarity with HPC.
 
 We use: 
 
 - [Ollama](https://ollama.com/) for pulling and running LLMs
-- [Apptainer](https://www.rc.virginia.edu/userinfo/hpc/software/apptainer/) for container management 
-- [Slurm](https://www.rc.virginia.edu/userinfo/hpc/slurm/) for job management
+- [Apptainer](https://www.rc.virginia.edu/userinfo/hpc/software/apptainer/) for container management (because Ollama will run from inside a container)
+- [Slurm](https://www.rc.virginia.edu/userinfo/hpc/slurm/) for job management (when running a batch job)
 
 This setup gets a local LLM up and running quickly without requirng low level tools or configurations. 
 
 But it's not optimal if you need high-volume batch processing. For such needs, check out [vllm](https://github.com/vllm-project/vllm), which requires managing your own python environment but provides superior performance.
 
-# Requirements
+# What You Need
 
 You must have access to UVA's HPC system with an active allocation.
 
-Some experience with the Linux shell and familiarity with the tools mentioned above would be helpful.
+You also need some experience with the Linux shell and familiarity with the tools mentioned above.
 
 # What the Scripts Do
 
@@ -43,7 +43,7 @@ Some experience with the Linux shell and familiarity with the tools mentioned ab
 - Once in your shell, move to somewhere in the filesystem (e.g., inside `~` or `/project` or `/scratch`) and clone this repo: `git clone https://github.com/asifm/local-llm-on-hpc`
 - cd into the cloned directory. 
 
-From here, you can launch a chat session or start a batch job.
+From here, you can launch a chat session or start a batch job. For the chat session, you need to first launch an interactive computing node as described below.
 
 ## Chat Session 
 
@@ -83,4 +83,4 @@ Slurm will put your job request in the queue. To check status, run: `squeue -u $
 
 2. When the job is complete, check the output of the job in the file “slurm-<job_id>.out” (where `<job_id>` is the numerical ID assigned by Slurm when a job is submitted).
 
-To do anything useful, you'd need to write some Python code and execute that code from this job script. Ollama provides a [Python library](https://github.com/ollama/ollama-python). There's some [compatibility with the OpenAI API](https://docs.ollama.com/api/openai-compatibility).
+To do anything useful, you'd need to write some Python code and execute that code from this job script. Ollama provides a [Python library](https://github.com/ollama/ollama-python). See also its [compatibility with the OpenAI API](https://docs.ollama.com/api/openai-compatibility). Make sure to adjust the `sbatch` directives at the top of the Slurm script.
